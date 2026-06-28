@@ -32,14 +32,16 @@ app.use(cors({
 
 app.use(express.json({ limit: "5mb" }));
 
+
 // 2. Socket.io Setup
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigin,
+    origin: "https://skillora-frontend-alpha.vercel.app", // Tumhara Vercel URL
     methods: ["GET", "POST"],
-    credentials: true,
-  },
+    credentials: true
+  }
 });
+
 
 // Connect to MongoDB
 connectDB();

@@ -85,6 +85,12 @@ io.on("connection", (socket) => {
     }
   });
 
+  // Called by the frontend right after the admin clears a chat via REST API,
+  // so the student's open chat window also clears instantly.
+  socket.on("chat_cleared", ({ conversationId }) => {
+    io.to(conversationId).emit("chat_cleared", { conversationId });
+  });
+
   // ── Live Quiz Leaderboard ──
   socket.on("join_quiz_room", (quizId) => socket.join(`quiz_${quizId}`));
   socket.on("leave_quiz_room", (quizId) => socket.leave(`quiz_${quizId}`));

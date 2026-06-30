@@ -65,3 +65,15 @@ export const markConversationRead = async (req, res) => {
     res.status(500).json({ message: "Failed to update messages." });
   }
 };
+
+// @route DELETE /api/chat/:conversationId (admin only) - permanently delete every message in a conversation
+export const clearConversation = async (req, res) => {
+  try {
+    const { conversationId } = req.params;
+    const result = await Message.deleteMany({ conversationId });
+    res.json({ message: "Chat cleared successfully.", deletedCount: result.deletedCount });
+  } catch (error) {
+    console.error("Clear conversation error:", error);
+    res.status(500).json({ message: "Failed to clear chat." });
+  }
+};

@@ -11,11 +11,23 @@ export const getConversations = async (req, res) => {
         const lastMessage = await Message.findOne({ conversationId }).sort({ createdAt: -1 });
         const studentId = conversationId.split("_")[0];
         const student = await User.findById(studentId).select("name email");
+
+        // Unread = student ke messages jo admin ne abhi tak nahi padhe
+        // (yahan simple version: admin ki taraf se "unread" track karne ke liye
+        // hum bas last message ka sender check karte hain)
+        const unreadCount = await Message.countDocuments({
+          conversationId,
+          senderRole: "student",
+          readByAdmin: { $ne: true },
+        });
+
         return {
           conversationId,
           student,
           lastMessage: lastMessage?.messageText || "",
           lastMessageAt: lastMessage?.createdAt || null,
+          lastSenderRole: lastMessage?.senderRole || null,
+          unreadCount,
         };
       })
     );
@@ -36,5 +48,20 @@ export const getMessages = async (req, res) => {
   } catch (error) {
     console.error("Get messages error:", error);
     res.status(500).json({ message: "Failed to fetch messages." });
+  }
+};
+
+// @route POST /api/chat/:conversationId/read - mark all student messages in this conversation as read by admin
+export const markConversationRead = async (req, res) => {
+  try {
+    const { conversationId } = req.params;
+    await Message.updateMany(
+      { conversationId, senderRole: "student" },
+      { $set: { readByAdmin: true } }
+    );
+    res.json({ message: "Marked as read." });
+  } catch (error) {
+    console.error("Mark conversation read error:", error);
+    res.status(500).json({ message: "Failed to update messages." });
   }
 };

@@ -27,6 +27,11 @@ const messageSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
+    // Track whether admin has seen this (student-sent) message
+    readByAdmin: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

@@ -5,10 +5,14 @@ import {
   createVideo,
   updateVideo,
   deleteVideo,
+  fetchVideoMetadata // Naya function import karo
 } from "../controllers/videoController.js";
 import { protect, adminOnly } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
+
+// Metadata fetch karne ka route
+router.post("/fetch-metadata", protect, adminOnly, fetchVideoMetadata);
 
 router.get("/", getVideos);
 router.get("/:id", getVideoById);

@@ -1,4 +1,5 @@
 import Video from "../models/Video.js";
+import axios from "axios";
 
 // @route GET /api/videos
 export const getVideos = async (req, res) => {
@@ -80,5 +81,22 @@ export const deleteVideo = async (req, res) => {
   } catch (error) {
     console.error("Delete video error:", error);
     res.status(500).json({ message: "Failed to delete video." });
+  }
+};
+
+
+export const fetchVideoMetadata = async (req, res) => {
+  const { videoUrl } = req.body;
+  try {
+    // YouTube oEmbed API call
+    const response = await axios.get(`https://www.youtube.com/oembed?url=${videoUrl}&format=json`);
+    
+    // Yahan se hame title aur thumbnail mil jayega
+    res.json({
+      title: response.data.title,
+      thumbnail: response.data.thumbnail_url,
+    });
+  } catch (error) {
+    res.status(400).json({ message: "Invalid YouTube URL" });
   }
 };

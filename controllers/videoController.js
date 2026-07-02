@@ -85,7 +85,10 @@ export const deleteVideo = async (req, res) => {
 };
 
 
+
+
 export const fetchVideoMetadata = async (req, res) => {
+  console.log("Received data:", req.body); // Check this in terminal
   const { videoUrl } = req.body;
   try {
     // YouTube oEmbed API call

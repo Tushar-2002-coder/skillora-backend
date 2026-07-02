@@ -15,8 +15,8 @@ const router = express.Router();
 router.post("/fetch-metadata", protect, adminOnly, fetchVideoMetadata);
 
 router.get("/", getVideos);
-router.get("/:id", getVideoById);
 router.post("/", protect, adminOnly, createVideo);
+router.get("/:id", getVideoById);
 router.put("/:id", protect, adminOnly, updateVideo);
 router.delete("/:id", protect, adminOnly, deleteVideo);
 

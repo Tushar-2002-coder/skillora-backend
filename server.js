@@ -19,17 +19,18 @@ import QuizAttempt from "./models/QuizAttempt.js";
 const app = express();
 const server = http.createServer(app);
 
-// ✅ CLIENT_URL env variable se lo — localhost bhi kaam kare, Vercel bhi
+// ✅ Ek hi jagah se URL lo - CORS aur Socket.io dono ke liye
 const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
 
+// ✅ FIXED: Dono jagah same CLIENT_URL - pehle hardcoded tha
 app.use(cors({
-  origin: "https://skillora-frontend-alpha.vercel.app", // Exact URL match hona chahiye
+  origin: CLIENT_URL,
+  methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true,
 }));
 
 app.use(express.json({ limit: "5mb" }));
 
-// ✅ Socket.io — same CLIENT_URL use karo
 const io = new Server(server, {
   cors: {
     origin: CLIENT_URL,
@@ -50,13 +51,9 @@ app.use("/api/notifications", notificationRoutes);
 app.get("/", (req, res) => res.send("Skillora API is running ✅"));
 app.set("io", io);
 
-// ─────────────────────────────────────────
-// Socket.io Event Handlers
-// ─────────────────────────────────────────
 io.on("connection", (socket) => {
   console.log(`🔌 Socket connected: ${socket.id}`);
 
-  // ── Chat ──
   socket.on("join_conversation", (conversationId) => {
     socket.join(conversationId);
   });
@@ -70,7 +67,6 @@ io.on("connection", (socket) => {
         messageText,
         conversationId,
       });
-      // Broadcast to everyone in the room (sender + receiver)
       io.to(conversationId).emit("receive_message", {
         _id: saved._id,
         sender: senderId,
@@ -84,13 +80,10 @@ io.on("connection", (socket) => {
     }
   });
 
-  // Called by the frontend right after the admin clears a chat via REST API,
-  // so the student's open chat window also clears instantly.
   socket.on("chat_cleared", ({ conversationId }) => {
     io.to(conversationId).emit("chat_cleared", { conversationId });
   });
 
-  // ── Live Quiz Leaderboard ──
   socket.on("join_quiz_room", (quizId) => socket.join(`quiz_${quizId}`));
   socket.on("leave_quiz_room", (quizId) => socket.leave(`quiz_${quizId}`));
 
@@ -99,7 +92,6 @@ io.on("connection", (socket) => {
       const attempts = await QuizAttempt.find({ quiz: quizId })
         .populate("student", "name")
         .sort({ score: -1, timeTakenSeconds: 1 });
-
       const leaderboard = attempts.map((a, i) => ({
         rank: i + 1,
         studentId: a.student?._id,
@@ -108,14 +100,12 @@ io.on("connection", (socket) => {
         totalMarks: a.totalMarks,
         timeTakenSeconds: a.timeTakenSeconds,
       }));
-
       io.to(`quiz_${quizId}`).emit("leaderboard_update", leaderboard);
     } catch (error) {
       console.error("Leaderboard broadcast error:", error);
     }
   });
 
-  // ── Notifications ──
   socket.on("notification_broadcast", async ({ notificationId }) => {
     try {
       const notification = await Notification.findById(notificationId);

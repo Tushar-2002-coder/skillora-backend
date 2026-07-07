@@ -23,8 +23,7 @@ const server = http.createServer(app);
 const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
 
 app.use(cors({
-  origin: CLIENT_URL,
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  origin: "https://skillora-frontend-alpha.vercel.app", // Exact URL match hona chahiye
   credentials: true,
 }));
 

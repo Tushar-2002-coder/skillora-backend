@@ -87,13 +87,6 @@ const videoSchema = new mongoose.Schema(
   }
 );
 
-// Prevent duplicate YouTube videos
-videoSchema.index(
-  { videoId: 1 },
-  {
-    unique: true,
-    sparse: true,
-  }
-);
+
 
 export default mongoose.model("Video", videoSchema);

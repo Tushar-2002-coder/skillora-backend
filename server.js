@@ -66,6 +66,9 @@ app.use("/api/chat", chatRoutes);
 app.use("/api/quizzes", quizRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/youtube", youtubeRoutes);
+app.get("/api/test", (req, res) => {
+  res.json({ message: "API working" });
+});
 
 // ===============================
 // Home Route

@@ -1,22 +1,27 @@
+// routes/videoRoutes.js
 import express from "express";
 import {
   getVideos,
   getVideoById,
+  getRelatedVideos,
   createVideo,
   updateVideo,
   deleteVideo,
-  fetchVideoMetadata // Naya function import karo
+  recordWatch,
 } from "../controllers/videoController.js";
-import { protect, adminOnly } from "../middleware/authMiddleware.js";
+import { protect, adminOnly, requireAuth } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// Metadata fetch karne ka route
-router.post("/fetch-metadata", protect, adminOnly, fetchVideoMetadata);
-
-router.get("/", getVideos);
-router.post("/", protect, adminOnly, createVideo);
+router.get("/", protect, getVideos);
+router.get("/:id/related", protect, getRelatedVideos);
 router.get("/:id", getVideoById);
+
+// Watch history — requireAuth (must be logged in)
+router.post("/:id/watch", requireAuth, recordWatch);
+
+// Admin only
+router.post("/", protect, adminOnly, createVideo);
 router.put("/:id", protect, adminOnly, updateVideo);
 router.delete("/:id", protect, adminOnly, deleteVideo);
 

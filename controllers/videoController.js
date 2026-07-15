@@ -103,3 +103,25 @@ export const fetchVideoMetadata = async (req, res) => {
     res.status(400).json({ message: "Invalid YouTube URL" });
   }
 };
+
+export const getRelatedVideos = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const video = await Video.findById(id);
+
+    if (!video) {
+      return res.status(404).json({ message: "Video not found" });
+    }
+
+    // Usi category ke doosre videos fetch karein (current video ko chhodkar)
+    const relatedVideos = await Video.find({
+      category: video.category,
+      _id: { $ne: id }, // current video ko exclude karein
+    }).limit(5); // Sirf 5 results dikhayein
+
+    res.json(relatedVideos);
+  } catch (error) {
+    console.error("Related videos error:", error);
+    res.status(500).json({ message: "Failed to fetch related videos." });
+  }
+};

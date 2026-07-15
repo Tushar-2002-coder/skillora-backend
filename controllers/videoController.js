@@ -207,4 +207,8 @@ export const recordWatch = async (req, res) => {
   }
 };
 
-
+const getRecommendedVideos = (currentVideoTags, allVideos) => {
+    return allVideos
+        .filter(video => video.category === currentVideoTags.category)
+        .sort((a, b) => b.popularity - a.popularity); // Priority top pe
+};

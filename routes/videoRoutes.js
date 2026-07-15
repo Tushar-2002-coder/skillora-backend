@@ -19,5 +19,6 @@ router.post("/", protect, adminOnly, createVideo);
 router.get("/:id", getVideoById);
 router.put("/:id", protect, adminOnly, updateVideo);
 router.delete("/:id", protect, adminOnly, deleteVideo);
+router.get("/:id/related", protect, getRelatedVideos);
 
 export default router;
